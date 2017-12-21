@@ -125,8 +125,8 @@ def get_train_loader(config, dataset_dir):
     transform = transforms.Compose([
         Resize((config.image_size, config.image_size)),
         transforms.RandomHorizontalFlip(),
-        # RandomVerticalFlip(),
-        # RandomRotate90(), #  seems to hurt performance due to lossy transform?
+        RandomVerticalFlip(),
+        RandomRotate90(),
         transforms.ToTensor(),
         transforms.Normalize(mean=config.mean, std=config.std),
     ])
