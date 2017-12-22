@@ -10,7 +10,7 @@ from rv.utils import (
     download_if_needed, make_empty_dir, get_local_path, upload_if_needed,
     load_projects, BoxDB, get_random_window_for_box, get_random_window,
     load_window, save_img, get_boxes_from_geojson,
-    print_box_stats, build_vrt)
+    print_box_stats, build_vrt, add_blank_chips)
 from rv.classification.commands.settings import (
     planet_channel_order, temp_root_dir)
 
@@ -44,7 +44,7 @@ def make_neg_chips(project_ind, desired_neg_count,
                    channel_order):
     box_db = BoxDB(boxes)
     neg_count = 0
-    max_attempts = desired_neg_count * 10
+    max_attempts = desired_neg_count * 100
 
     for _ in range(max_attempts):
         # extract random window
@@ -97,13 +97,6 @@ def process_image(project_ind, image_path, annotations_path, pos_dir, neg_dir,
         classes, neg_dir, channel_order)
     print('Wrote {} negative chips.'.format(neg_count))
     print()
-
-
-def add_blank_neg_chips(blank_neg_count, chip_size, neg_dir):
-    blank_im = np.zeros((chip_size, chip_size, 3))
-    for blank_neg_ind in range(blank_neg_count):
-        chip_path = join(neg_dir, 'blank-{}.png'.format(blank_neg_ind))
-        save_img(chip_path, blank_im)
 
 
 @click.command()
@@ -162,7 +155,7 @@ def prep_train_data(projects_uri, output_zip_uri, chip_size,
     # end.
     neg_count = len(glob.glob(join(neg_dir, '*.png')))
     blank_neg_count = max(10, int(blank_neg_ratio * neg_count))
-    add_blank_neg_chips(blank_neg_count, chip_size, neg_dir)
+    add_blank_chips(blank_neg_count, chip_size, neg_dir)
 
     # Copy label map so it's included in the zip file for convenience.
     # label_map_copy_path = join(output_zip_dir, 'label-map.pbtxt')
